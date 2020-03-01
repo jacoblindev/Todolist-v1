@@ -1,9 +1,11 @@
+// Dependencies
 const express    = require("express"),
       bodyParser = require("body-parser"),
       mongoose = require("mongoose"),
       _ = require("lodash");
 
 const app = express();
+const port = 3000;
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
@@ -33,13 +35,12 @@ const item3 = new Item({name: "MacBook Pro"});
 
 const defaultItems = [item1, item2, item3];
 
-
 // Routes
-app.get("/", function(req, res) {
-  Item.find({}, function(err, items){
+app.get("/", (req, res) => {
+  Item.find({}, (err, items) => {
     if (items.length === 0) {
       // Insert default items to DB
-      Item.insertMany(defaultItems, function(err){
+      Item.insertMany(defaultItems, err => {
         if(err){
           console.log(err);
         } else {
@@ -56,7 +57,7 @@ app.get("/", function(req, res) {
   });
 });
 
-app.get("/:toDoList", function(req, res){
+app.get("/:toDoList", (req, res) => {
   const toDoName = _.capitalize(req.params.toDoList);
   List.findOne({name: toDoName}, function(err, foundList){
     if (!err) {
@@ -79,7 +80,7 @@ app.get("/:toDoList", function(req, res){
   });
 });
 
-app.post("/", function(req, res){
+app.post("/", (req, res) => {
   const itemName = req.body.newItem;
   const listName = req.body.list;
   const item = new Item({
@@ -89,7 +90,7 @@ app.post("/", function(req, res){
     item.save();
     res.redirect("/");
   } else {
-    List.findOne({name: listName}, function(err, foundList){
+    List.findOne({name: listName}, (err, foundList) => {
       foundList.items.push(item);
       foundList.save();
       res.redirect("/" + listName);
@@ -97,12 +98,12 @@ app.post("/", function(req, res){
   }
 });
 
-app.post("/delete", function(req, res){
+app.post("/delete", (req, res) => {
   const checkedItem = req.body.delItem;
   const listName = req.body.listName;
 
   if (listName === "Today") {
-    Item.findByIdAndRemove(checkedItem, function(err){
+    Item.findByIdAndRemove(checkedItem, err => {
       if (err) {
         console.log(err);
       } else {
@@ -121,11 +122,7 @@ app.post("/delete", function(req, res){
       }
     });
   }
-
 });
-
 
 // Listen to the port request
-app.listen(3000, function() {
-  console.log("Server started on port 3000...");
-});
+app.listen(port, () => console.log(`Server started on port ${port}...`));
