@@ -40,13 +40,7 @@ app.get("/", (req, res) => {
   Item.find({}, (err, items) => {
     if (items.length === 0) {
       // Insert default items to DB
-      Item.insertMany(defaultItems, err => {
-        if(err){
-          console.log(err);
-        } else {
-          console.log("Insert successfully");
-        }
-      });
+      Item.insertMany(defaultItems, err => err ? console.log(err) : console.log("Insert successfully"));
       res.redirect("/");
     } else {
       res.render("list", {
@@ -103,20 +97,14 @@ app.post("/delete", (req, res) => {
   const listName = req.body.listName;
 
   if (listName === "Today") {
-    Item.findByIdAndRemove(checkedItem, err => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log("Item remove successfully!");
-      }
-    });
+    Item.findByIdAndRemove(checkedItem, err => err ? console.log(err) : console.log("Item remove successfully!"));
     res.redirect("/");
   } else {
     List.findOneAndUpdate({
       name: listName
     }, {
       $pull: {items: {_id: checkedItem}}
-    }, function(err, foundList){
+    }, (err, foundList) => {
       if (!err) {
         res.redirect("/" + listName);
       }
